@@ -2,9 +2,13 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIconComponent } from '@ng-icons/core';
+import { firstValueFrom } from 'rxjs';
 
-import { AuthService } from '../../services/auth.service';
-import { ButtonComponent } from "../../../../shared/ui/button/button.component"; // ajustá si cambia la ruta
+import { AuthService, LoginResponse } from '../../services/auth.service';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+
+import { normalizeApiError } from '../../../../shared/http/errors';
+import { ToastService } from '../../../../shared/ui/toast/toast.service';
 
 type FieldErrors = {
   email: string | null;
@@ -21,6 +25,7 @@ export class LoginPage {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
 
   showPassword = false;
   remember = false;
@@ -35,13 +40,9 @@ export class LoginPage {
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: [
-      '',
-      [Validators.required, Validators.minLength(8), Validators.maxLength(72)],
-    ],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
   });
 
-  // Limpieza de errores “en vivo” (equivalente al hook)
   clearEmailErrors() {
     if (this.fieldErrors.email) this.fieldErrors.email = null;
     if (this.error) this.error = null;
@@ -102,21 +103,25 @@ export class LoginPage {
       return;
     }
 
-    try {
-      const email = this.form.controls.email.value.trim();
-      const password = this.form.controls.password.value;
+    const email = this.form.controls.email.value.trim();
+    const password = this.form.controls.password.value;
 
-      await this.auth.login({ email, password, remember: this.remember });
+    try {
+      const res: LoginResponse = await firstValueFrom(this.auth.login({ email, password }));
+      await firstValueFrom(this.auth.me());
+      await this.router.navigateByUrl('/feed');
+
+      if (res.accessToken) {
+        this.auth.saveSession(res.accessToken, res.refreshToken);
+      }
+
+      this.toast.success('Sesión iniciada');
 
       await this.router.navigateByUrl('/feed');
-    } catch (err: any) {
-      const msg =
-        err?.message ||
-        err?.error?.message ||
-        (Array.isArray(err?.error?.message) ? err.error.message.join(', ') : null) ||
-        'Error inesperado';
-
-      this.error = msg;
+    } catch (e: unknown) {
+      const err = normalizeApiError(e);
+      this.error = err.message;
+      this.toast.error(err.message, 'Error de login');
     } finally {
       this.isSubmitting = false;
     }

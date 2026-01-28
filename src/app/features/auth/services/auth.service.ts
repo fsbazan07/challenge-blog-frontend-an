@@ -1,31 +1,48 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { catchError, tap, throwError } from 'rxjs';
+import { normalizeHttpError } from '../../../shared/http/normalize-error';
+import type { ApiError } from '../../../shared/http/types';
+import { AuthSessionService } from './auth-session.service';
 
-export type LoginRequest = { email: string; password: string; remember?: boolean };
+export type LoginRequest = { email: string; password: string };
 export type LoginResponse = { accessToken?: string; refreshToken?: string };
-
-const ACCESS_TOKEN_KEY = 'access_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
+export type MeResponse = { user: { id: string; name: string; email: string } };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // TODO: en el próximo paso lo conectamos a HttpClient y al backend
-  async login(payload: LoginRequest): Promise<LoginResponse> {
-    console.log('login payload', payload);
+  private http = inject(HttpClient);
+  private session = inject(AuthSessionService);
 
-    // stub de éxito:
-    const res: LoginResponse = { accessToken: 'stub' };
-    if (res.accessToken) this.saveSession(res.accessToken, res.refreshToken);
-
-    return res;
+  login(payload: LoginRequest) {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, payload).pipe(
+      tap((res) => {
+        if (res.accessToken) {
+          this.session.setTokens(res.accessToken, res.refreshToken);
+        }
+      }),
+      catchError((e) => throwError(() => normalizeHttpError(e) as ApiError)),
+    );
   }
 
+  me() {
+    return this.http.get<MeResponse>(`${environment.apiUrl}/auth/me`).pipe(
+      tap((res) => this.session.setUser(res.user)),
+      catchError((e) => throwError(() => normalizeHttpError(e) as ApiError)),
+    );
+  }
+
+  // Si querés mantener estas firmas para no tocar otros lugares:
   saveSession(accessToken: string, refreshToken?: string) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-    if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    this.session.setTokens(accessToken, refreshToken);
   }
 
   clearSession() {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    this.session.clear();
+  }
+
+  isAuthenticated() {
+    return this.session.isAuthenticated();
   }
 }

@@ -1,24 +1,30 @@
-import { Component } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeToggleComponent } from '../../ui/theme-toggle/theme-toggle.component';
 import { NgIconComponent } from '@ng-icons/core';
+import { AuthSessionService } from '../../../features/auth/services/auth-session.service';
+import { AuthService } from '../../../features/auth/services/auth.service';
+import { ToastService } from '../../ui/toast/toast.service';
 
 type NavItem = { to: string; label: string };
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [NgIf, NgFor, RouterLink, RouterLinkActive, ThemeToggleComponent, NgIconComponent],
+  imports: [RouterLink, RouterLinkActive, ThemeToggleComponent, NgIconComponent],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent {
-  // --- Estado UI (equivalente a useHeader().system) ---
+  private session = inject(AuthSessionService);
+  private auth = inject(AuthService);
+  private toast = inject(ToastService);
+  private router = inject(Router);
+  // --- Estado UI ---
   isMobileMenuOpen = false;
 
-  // --- Stub auth (luego lo conectamos a AuthService/store) ---
-  isAuthenticated = false;
-  userName = 'Flor';
+  // --- Stub auth (después lo conectamos a AuthSessionService) ---
+  isAuthenticated = this.session.isAuthenticated();
+  userName = this.session.userName();
 
   navItems: NavItem[] = [
     { to: '/feed', label: 'Feed' },
@@ -26,7 +32,6 @@ export class HeaderComponent {
     { to: '/profile', label: 'Perfil' },
   ];
 
-  // --- Acciones (equivalente a useHeader().actions) ---
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }
@@ -36,8 +41,13 @@ export class HeaderComponent {
   }
 
   onLogoutClick() {
-    // TODO: conectar logout real + toast luego
+    this.session.clear();
+    this.auth.clearSession();
     this.isAuthenticated = false;
+    this.userName = '';
+
+    this.toast.success('Sesión cerrada');
     this.closeMobileMenu();
+    this.router.navigateByUrl('/login');
   }
 }
