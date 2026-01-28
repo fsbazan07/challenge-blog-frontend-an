@@ -1,0 +1,129 @@
+<header class="sticky top-0 z-20 shadow-md dark:shadow-accent bg-background backdrop-blur">
+  <div class="mx-auto flex h-18 max-w-6xl items-center justify-between px-4">
+    <!-- Left -->
+    <div class="flex items-center gap-3">
+      <!-- Botón hamburguesa (solo mobile) -->
+      <button
+        type="button"
+        (click)="toggleMobileMenu()"
+        class="md:hidden inline-flex items-center justify-center rounded-md px-2 py-2 text-foreground hover:bg-muted transition-colors"
+        aria-label="Abrir menú"
+        [attr.aria-expanded]="isMobileMenuOpen"
+      >
+        <ng-icon name="matMenu" size="22" class="text-foreground"></ng-icon>
+      </button>
+
+      <!-- Logo -->
+      <a
+        routerLink="/feed"
+        class="text-sm font-semibold tracking-tight"
+        (click)="closeMobileMenu()"
+      > 
+        <img src="MyBlog.png" alt="MyBlog" class="h-16 drop-shadow-md" />
+      </a>
+    </div>
+
+    <!-- Center (desktop nav) -->
+    <nav class="hidden items-center gap-1 md:flex">
+      @for (item of navItems; track item.to) {
+        <a
+          [routerLink]="item.to"
+          routerLinkActive="bg-muted font-medium"
+          class="group relative rounded-md px-3 py-2 text-sm transition-colors text-foreground hover:bg-muted"
+          (click)="closeMobileMenu()"
+        >
+          {{ item.label }}
+
+          <span
+            class="absolute bottom-1 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-primary transition-all group-hover:w-4"
+          ></span>
+        </a>
+      }
+    </nav>
+
+    <!-- Right -->
+    <div class="flex items-center gap-2">
+      <!-- Auth vs Guest -->
+      @if (isAuthenticated) {
+        <div class="flex items-center gap-2">
+          <span class="hidden sm:inline text-sm text-muted-foreground">
+            ¡Hola {{ userName }}!
+          </span>
+
+          <button
+            type="button"
+            (click)="onLogoutClick()"
+            class="rounded-md border border-border px-3 py-2 text-sm hover:bg-muted transition-colors"
+          >
+            Salir
+          </button>
+        </div>
+      } @else {
+        <a routerLink="/login" (click)="closeMobileMenu()">
+          <button
+            type="button"
+            class="rounded-md border border-border px-3 py-2 text-sm hover:bg-muted transition-colors"
+          >
+            Ingresar
+          </button>
+        </a>
+      }
+
+      <!-- ThemeToggle desktop -->
+      <div class="hidden md:block p-0.5">
+        <app-theme-toggle />
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  @if (isMobileMenuOpen) {
+    <div class="bg-background md:hidden">
+      <nav class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
+        @if (isAuthenticated) {
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-muted-foreground">
+              ¡Hola {{ userName }}!
+            </span>
+          </div>
+        } @else {
+          <a routerLink="/login" (click)="closeMobileMenu()">
+            <button
+              type="button"
+              class="w-fit rounded-md border border-border px-3 py-2 text-sm hover:bg-muted transition-colors"
+            >
+              Ingresar
+            </button>
+          </a>
+        }
+
+        <a
+          routerLink="/feed"
+          class="rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+          (click)="closeMobileMenu()"
+        >
+          Feed
+        </a>
+
+        <a
+          routerLink="/myposts"
+          class="rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+          (click)="closeMobileMenu()"
+        >
+          Mis posts
+        </a>
+
+        <a
+          routerLink="/profile"
+          class="rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+          (click)="closeMobileMenu()"
+        >
+          Perfil
+        </a>
+
+        <!-- ThemeToggle mobile -->
+        <app-theme-toggle />
+      </nav>
+    </div>
+  }
+</header>
