@@ -9,6 +9,9 @@ import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 
 import { normalizeApiError } from '../../../../shared/http/errors';
 import { ToastService } from '../../../../shared/ui/toast/toast.service';
+import { InputGuardDirective } from '../../../../shared/directives/input-guard.directive';
+import { ngGuards } from '../../../../shared/directives/guards';
+import { DotsLoaderComponent } from '../../../../shared/ui/loader/dots-loader.component';
 
 type FieldErrors = {
   email: string | null;
@@ -18,7 +21,14 @@ type FieldErrors = {
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, NgIconComponent, ButtonComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    NgIconComponent,
+    ButtonComponent,
+    InputGuardDirective,
+    DotsLoaderComponent,
+  ],
   templateUrl: './login.page.html',
 })
 export class LoginPage {
@@ -26,6 +36,8 @@ export class LoginPage {
   private router = inject(Router);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+
+  guards = ngGuards;
 
   showPassword = false;
   remember = false;

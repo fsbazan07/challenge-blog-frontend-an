@@ -2,10 +2,32 @@
   <div class="w-full max-w-md rounded-2xl bg-card shadow-xl dark:shadow-black/30">
     <div class="p-6 sm:p-8">
       <h1 class="text-center text-2xl font-semibold tracking-tight text-foreground">
-        Iniciar sesión
+        Crear cuenta
       </h1>
 
       <form [formGroup]="form" class="mt-6 space-y-4 flex flex-col gap-4" (ngSubmit)="submit()">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm text-muted-foreground" for="name">Nombre</label>
+
+          <input
+            id="name"
+            formControlName="name"
+            [appInputGuard]="guards.onlyLetters"
+            guardMode="block"
+            (input)="clearNameErrors()"
+            (keydown)="clearNameErrors()"
+            [attr.aria-invalid]="!!fieldErrors.name"
+            type="text"
+            autocomplete="name"
+            placeholder="Tu nombre"
+            class="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+          />
+
+          @if (fieldErrors.name) {
+            <p class="text-sm text-destructive">{{ fieldErrors.name }}</p>
+          }
+        </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="text-sm text-muted-foreground" for="email">Email</label>
 
@@ -22,11 +44,11 @@
             placeholder="tu@email.com"
             class="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
           />
-        </div>
 
-        @if (fieldErrors.email) {
-          <p class="text-sm text-destructive">{{ fieldErrors.email }}</p>
-        }
+          @if (fieldErrors.email) {
+            <p class="text-sm text-destructive">{{ fieldErrors.email }}</p>
+          }
+        </div>
 
         <div class="flex flex-col gap-1.5">
           <label class="text-sm text-muted-foreground" for="password">Contraseña</label>
@@ -39,8 +61,9 @@
               guardMode="sanitize"
               (input)="clearPasswordErrors()"
               (keydown)="clearPasswordErrors()"
+              [attr.aria-invalid]="!!fieldErrors.password"
               [type]="showPassword ? 'text' : 'password'"
-              autocomplete="current-password"
+              autocomplete="new-password"
               placeholder="••••••••"
               class="w-full rounded-xl border border-border bg-muted px-4 py-3 pr-12 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
             />
@@ -64,16 +87,44 @@
           }
         </div>
 
-        <!-- Remember -->
-        <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            type="checkbox"
-            [checked]="remember"
-            (change)="toggleRemember()"
-            class="h-4 w-4 rounded border-border"
-          />
-          Recordarme
-        </label>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-sm text-muted-foreground" for="confirmPassword"
+            >Confirmar contraseña</label
+          >
+
+          <div class="relative">
+            <input
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              [appInputGuard]="guards.password"
+              guardMode="sanitize"
+              (input)="clearConfirmPasswordErrors()"
+              (keydown)="clearConfirmPasswordErrors()"
+              [attr.aria-invalid]="!!fieldErrors.confirmPassword"
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              autocomplete="new-password"
+              placeholder="••••••••"
+              class="w-full rounded-xl border border-border bg-muted px-4 py-3 pr-12 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+            />
+
+            <button
+              type="button"
+              (click)="showConfirmPassword = !showConfirmPassword"
+              class="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+              aria-label="Mostrar contraseña"
+            >
+              @if (showConfirmPassword) {
+                <ng-icon name="matVisibilityOff" size="20"></ng-icon>
+              } @else {
+                <ng-icon name="matVisibility" size="20"></ng-icon>
+              }
+            </button>
+          </div>
+
+          @if (fieldErrors.confirmPassword) {
+            <p class="text-sm text-destructive">{{ fieldErrors.confirmPassword }}</p>
+          }
+        </div>
 
         @if (error) {
           <div class="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -85,13 +136,13 @@
           @if (isSubmitting) {
             <app-dots-loader [count]="3" [size]="'sm'"></app-dots-loader>
           } @else {
-            Iniciar sesión
+            Crear cuenta
           }
         </app-button>
 
         <div class="pt-2 text-center text-sm text-muted-foreground">
-          ¿No tienes cuenta?
-          <a routerLink="/register" class="text-primary hover:underline"> Crear una cuenta </a>
+          ¿Ya tenés cuenta?
+          <a routerLink="/login" class="text-primary hover:underline">Iniciar sesión</a>
         </div>
       </form>
     </div>

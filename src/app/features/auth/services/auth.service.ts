@@ -10,6 +10,9 @@ export type LoginRequest = { email: string; password: string };
 export type LoginResponse = { accessToken?: string; refreshToken?: string };
 export type MeResponse = { user: { id: string; name: string; email: string } };
 
+export type RegisterRequest = { name: string; email: string; password: string };
+export type RegisterResponse = { accessToken?: string; refreshToken?: string };
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
@@ -44,5 +47,16 @@ export class AuthService {
 
   isAuthenticated() {
     return this.session.isAuthenticated();
+  }
+
+  register(payload: RegisterRequest) {
+    return this.http.post<RegisterResponse>(`${environment.apiUrl}/auth/register`, payload).pipe(
+      tap((res) => {
+        if (res.accessToken) {
+          this.session.setTokens(res.accessToken, res.refreshToken);
+        }
+      }),
+      catchError((e) => throwError(() => normalizeHttpError(e))),
+    );
   }
 }

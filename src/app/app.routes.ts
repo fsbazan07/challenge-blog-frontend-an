@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './shared/layout/auth-layout/auth-layout.component';
 
-
 export const routes: Routes = [
   {
     path: '',
@@ -20,14 +19,25 @@ export const routes: Routes = [
       },
     ],
   },
-   {
+  {
     path: 'login',
     component: AuthLayoutComponent,
     children: [
       {
         path: '',
         loadComponent: () =>
-          import('./features/auth/pages/login/login.page').then(m => m.LoginPage),
+          import('./features/auth/pages/login/login.page').then((m) => m.LoginPage),
+      },
+    ],
+  },
+  {
+    path: 'register',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/auth/pages/register/register.page').then((m) => m.RegisterPage),
       },
     ],
   },
