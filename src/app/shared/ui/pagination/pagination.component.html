@@ -1,0 +1,66 @@
+@if (totalPages > 1) {
+  <div class="flex items-center justify-center gap-2 pt-6">
+    <button
+      type="button"
+      (click)="onPrev()"
+      [disabled]="page <= 1"
+      class="px-3 py-2 disabled:opacity-50"
+      aria-label="Página anterior"
+    >
+      <ng-icon name="matChevronLeft"></ng-icon>
+    </button>
+
+    @if (window.start > 1) {
+      <button
+        type="button"
+        (click)="onGoTo(1)"
+        class="rounded-xl border border-border bg-muted px-3 py-2 text-sm"
+      >
+        1
+      </button>
+
+      @if (window.start > 2) {
+        <span class="px-1 text-sm text-muted-foreground">…</span>
+      }
+    }
+
+    @for (p of window.pages; track p) {
+      <button
+        type="button"
+        (click)="onGoTo(p)"
+        class="rounded-xl border px-3 py-2 text-sm"
+        [class.border-ring]="p === page"
+        [class.bg-background]="p === page"
+        [class.border-border]="p !== page"
+        [class.bg-muted]="p !== page"
+        [class.hover:bg-muted/70]="p !== page"
+      >
+        {{ p }}
+      </button>
+    }
+
+    @if (window.end < totalPages) {
+      @if (window.end < totalPages - 1) {
+        <span class="px-1 text-sm text-muted-foreground">…</span>
+      }
+
+      <button
+        type="button"
+        (click)="onGoTo(totalPages)"
+        class="rounded-xl border border-border bg-muted px-3 py-2 text-sm"
+      >
+        {{ totalPages }}
+      </button>
+    }
+
+    <button
+      type="button"
+      (click)="onNext()"
+      [disabled]="page >= totalPages"
+      class="px-3 py-2 disabled:opacity-50"
+      aria-label="Página siguiente"
+    >
+      <ng-icon name="matChevronRight"></ng-icon>
+    </button>
+  </div>
+}
