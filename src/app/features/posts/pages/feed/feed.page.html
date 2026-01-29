@@ -1,12 +1,66 @@
-<div class="mx-auto max-w-6xl px-4 py-6">
-  <div class="rounded-lg bg-card text-card-foreground border border-border p-4">
-    <h1 class="text-xl font-semibold">Feed</h1>
-    <p class="text-muted-foreground">
-      Placeholder de la página de feed. Acá vamos a listar los posts.
-    </p>
+<div class="px-4 py-8">
+  <div class="mx-auto w-full max-w-6xl space-y-6">
+    <app-post-toolbar
+      title="Feed"
+      subtitle="Explorá posts de la comunidad y descubrí nuevas ideas."
+    >
+      <a rightSlot [routerLink]="['/myposts/new']">
+        <app-button variant="primary">Crear post</app-button>
+      </a>
+    </app-post-toolbar>
 
-    <button class="mt-4 rounded-md bg-primary text-primary-foreground px-4 py-2">
-      Botón primary
-    </button>
+    <div class="flex flex-col gap-3 py-3 sm:flex-row">
+      <input
+        placeholder="Buscar por título..."
+        [value]="q"
+        (input)="setQ($any($event.target).value)"
+        class="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+      />
+
+      <select
+        class="w-full sm:w-56 rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+      >
+        <option>Más recientes</option>
+        <option>Más populares</option>
+      </select>
+    </div>
+
+    @if (error) {
+      <div class="rounded-xl border border-border bg-muted p-4 text-sm">
+        {{ error.message }}
+      </div>
+    }
+
+    @if (isLoading) {
+      <div class="flex justify-center py-6">
+        <app-dots-loader />
+      </div>
+    } @else {
+      @if (items.length) {
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          @for (p of items; track p.id) {
+            <app-post-card
+              [id]="p.id"
+              [title]="p.title"
+              [excerpt]="p.excerpt ?? ''"
+              [authorName]="p.author?.name ?? '—'"
+              [createdAt]="p.created_at"
+              [coverUrl]="resolveCover(p.coverUrl) ?? ''"
+              [tags]="p.tags"
+            />
+          }
+        </div>
+      } @else {
+        <div class="rounded-xl border border-border bg-muted p-4 text-sm">No hay posts</div>
+      }
+    }
+
+    <app-pagination
+      [page]="page"
+      [totalPages]="totalPages"
+      (prev)="prevPage()"
+      (next)="nextPage()"
+      (goTo)="goToPage($event)"
+    />
   </div>
 </div>
