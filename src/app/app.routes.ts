@@ -18,6 +18,11 @@ export const routes: Routes = [
           import('./features/posts/pages/feed/feed.page').then((m) => m.FeedPage),
       },
       {
+        path: 'posts/:id',
+        loadComponent: () =>
+          import('./features/posts/pages/detail/post-detail.page').then((m) => m.PostDetailPage),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./features/users/pages/profile.page').then((m) => m.ProfilePage),
