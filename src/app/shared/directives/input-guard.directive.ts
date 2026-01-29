@@ -29,10 +29,25 @@ export class InputGuardDirective {
 
   @Input() guardMode: 'block' | 'sanitize' = 'block';
 
-  private elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private elementRef = inject<ElementRef<HTMLInputElement | HTMLTextAreaElement>>(ElementRef);
 
-  private get el(): HTMLInputElement {
-    return this.elementRef.nativeElement as HTMLInputElement;
+  private setValueKeepingCursor(next: string, cursor: number) {
+    const el = this.el;
+    el.value = next;
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    queueMicrotask(() => {
+      try {
+        const pos = Math.min(cursor, next.length);
+        el.setSelectionRange(pos, pos);
+      } catch (err) {
+        void err;
+      }
+    });
+  }
+
+  private get el(): HTMLInputElement | HTMLTextAreaElement {
+    return this.elementRef.nativeElement as HTMLInputElement | HTMLTextAreaElement;
   }
 
   @HostListener('keydown', ['$event'])
@@ -88,6 +103,51 @@ export class InputGuardDirective {
       this.el.setSelectionRange(Math.min(pos, cleaned.length), Math.min(pos, cleaned.length));
 
       this.el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
+  @HostListener('beforeinput', ['$event'])
+  onBeforeInput(e: InputEvent) {
+    if (!this.config) return;
+
+    // solo cuando se inserta texto
+    if (!e.data) return;
+
+    const sanitize = this.config.sanitize;
+    if (!sanitize) return;
+
+    const el = this.el;
+    const current = el.value ?? '';
+    const start = el.selectionStart ?? current.length;
+    const end = el.selectionEnd ?? current.length;
+
+    const proposed = current.slice(0, start) + e.data + current.slice(end);
+    const cleaned = sanitize(proposed);
+
+    if (cleaned !== proposed) {
+      e.preventDefault();
+      this.setValueKeepingCursor(cleaned, start); // helper abajo
+    }
+  }
+
+  @HostListener('drop', ['$event'])
+  onDrop(e: DragEvent) {
+    if (!this.config?.sanitize) return;
+
+    const text = e.dataTransfer?.getData('text') ?? '';
+    if (!text) return;
+
+    const cleaned = this.config.sanitize(text);
+    if (cleaned !== text) {
+      e.preventDefault();
+
+      const el = this.el;
+      const current = el.value ?? '';
+      const start = el.selectionStart ?? current.length;
+      const end = el.selectionEnd ?? current.length;
+
+      const next = current.slice(0, start) + cleaned + current.slice(end);
+      this.setValueKeepingCursor(next, start + cleaned.length);
     }
   }
 }

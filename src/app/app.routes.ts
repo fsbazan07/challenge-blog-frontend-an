@@ -24,8 +24,28 @@ export const routes: Routes = [
       },
       {
         path: 'myposts',
-        loadComponent: () =>
-          import('./features/posts/pages/my-posts/my-posts.page').then((m) => m.MyPostsPage),
+
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/posts/pages/my-posts/my-posts.page').then((m) => m.MyPostsPage),
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./features/posts/pages/post-editor/post-editor.page').then(
+                (m) => m.PostEditorPage,
+              ),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./features/posts/pages/post-editor/post-editor.page').then(
+                (m) => m.PostEditorPage,
+              ),
+          },
+        ],
       },
       {
         path: 'profile',
