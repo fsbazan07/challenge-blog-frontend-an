@@ -4,7 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgIconComponent } from '@ng-icons/core';
 import { firstValueFrom } from 'rxjs';
 
-import { AuthService, LoginResponse } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 
 import { normalizeApiError } from '../../../../shared/http/errors';
@@ -12,6 +12,7 @@ import { ToastService } from '../../../../shared/ui/toast/toast.service';
 import { InputGuardDirective } from '../../../../shared/directives/input-guard.directive';
 import { ngGuards } from '../../../../shared/directives/guards';
 import { DotsLoaderComponent } from '../../../../shared/ui/loader/dots-loader.component';
+import { AuthSessionService } from '../../services/auth-session.service';
 
 type FieldErrors = {
   email: string | null;
@@ -36,6 +37,7 @@ export class LoginPage {
   private router = inject(Router);
   private auth = inject(AuthService);
   private toast = inject(ToastService);
+  private authSession = inject(AuthSessionService);
 
   guards = ngGuards;
 
@@ -58,11 +60,13 @@ export class LoginPage {
   clearEmailErrors() {
     if (this.fieldErrors.email) this.fieldErrors.email = null;
     if (this.error) this.error = null;
+    this.isSubmitting = false;
   }
 
   clearPasswordErrors() {
     if (this.fieldErrors.password) this.fieldErrors.password = null;
     if (this.error) this.error = null;
+    this.isSubmitting = false;
   }
 
   toggleShowPassword() {
@@ -107,33 +111,34 @@ export class LoginPage {
     if (this.isSubmitting) return;
 
     this.error = null;
-    this.isSubmitting = true;
 
     const ok = this.validate();
     if (!ok) {
-      this.isSubmitting = false;
+      this.toast.error('Revisá los campos del formulario');
       return;
     }
+
+    this.isSubmitting = true;
 
     const email = this.form.controls.email.value.trim();
     const password = this.form.controls.password.value;
 
     try {
-      const res: LoginResponse = await firstValueFrom(this.auth.login({ email, password }));
-      await firstValueFrom(this.auth.me());
-      await this.router.navigateByUrl('/feed');
+      // login() ya guarda tokens en AuthService (tap)
+      await firstValueFrom(this.auth.login({ email, password }));
 
-      if (res.accessToken) {
-        this.auth.saveSession(res.accessToken, res.refreshToken);
-      }
+      // me() devuelve { user } y el AuthService también setea user en session (tap)
+      const meRes = await firstValueFrom(this.auth.me());
+
+      // opcional, pero ok para asegurar
+      this.authSession.setUser(meRes.user);
 
       this.toast.success('Sesión iniciada');
-
       await this.router.navigateByUrl('/feed');
     } catch (e: unknown) {
       const err = normalizeApiError(e);
       this.error = err.message;
-      this.toast.error(err.message, 'Error de login');
+      this.toast.error(err.message);
     } finally {
       this.isSubmitting = false;
     }

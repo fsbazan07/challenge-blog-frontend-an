@@ -11,15 +11,12 @@ import { AsyncPipe } from '@angular/common';
       @for (t of (toast.toasts$ | async) ?? []; track t.id) {
         <div
           class="rounded-xl border border-border bg-card px-4 py-3 shadow-lg"
-          [class]="t.type === 'error' ? 'bg-destructive' : ''"
+          [class]="t.type === 'error' ? 'bg-destructive' : 'bg-success'"
         >
           @if (t.title) {
             <div class="text-sm font-semibold text-foreground">{{ t.title }}</div>
           }
-          <div
-            class="text-sm"
-            [class]="t.type === 'error' ? 'text-destructive' : 'text-foreground'"
-          >
+          <div class="text-sm" [class]="t.type === 'error' ? 'text-error' : 'text-success'">
             {{ t.message }}
           </div>
         </div>

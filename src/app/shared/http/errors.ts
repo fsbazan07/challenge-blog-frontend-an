@@ -9,7 +9,7 @@ function asMessage(msg: unknown): string {
 
 export function normalizeApiError(err: unknown): ApiError {
   if (!(err instanceof HttpErrorResponse)) {
-    return { status: 0, message: 'Error inesperado', details: err };
+    return err as ApiError;
   }
 
   const status = err.status ?? 0;

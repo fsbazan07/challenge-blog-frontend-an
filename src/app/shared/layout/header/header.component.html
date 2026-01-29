@@ -18,7 +18,7 @@
         routerLink="/feed"
         class="text-sm font-semibold tracking-tight"
         (click)="closeMobileMenu()"
-      > 
+      >
         <img src="MyBlog.png" alt="MyBlog" class="h-16 drop-shadow-md" />
       </a>
     </div>
@@ -44,10 +44,10 @@
     <!-- Right -->
     <div class="flex items-center gap-2">
       <!-- Auth vs Guest -->
-      @if (isAuthenticated) {
+      @if (isAuthenticated()) {
         <div class="flex items-center gap-2">
           <span class="hidden sm:inline text-sm text-muted-foreground">
-            ¡Hola {{ userName }}!
+            ¡Hola {{ userName() }}!
           </span>
 
           <button
@@ -80,11 +80,9 @@
   @if (isMobileMenuOpen) {
     <div class="bg-background md:hidden">
       <nav class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
-        @if (isAuthenticated) {
+        @if (isAuthenticated()) {
           <div class="flex items-center gap-2">
-            <span class="text-sm text-muted-foreground">
-              ¡Hola {{ userName }}!
-            </span>
+            <span class="text-sm text-muted-foreground"> ¡Hola {{ userName() }}! </span>
           </div>
         } @else {
           <a routerLink="/login" (click)="closeMobileMenu()">

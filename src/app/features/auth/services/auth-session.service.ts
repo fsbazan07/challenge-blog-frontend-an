@@ -1,12 +1,13 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { tokenStorage } from '../../../shared/http/storage';
+import { userStorage } from '../../../shared/http/user-storage';
 
 type User = { id: string; name: string; email: string } | null;
 
 @Injectable({ providedIn: 'root' })
 export class AuthSessionService {
   private _accessToken = signal<string | null>(tokenStorage.getAccess());
-  private _user = signal<User>(null);
+  private _user = signal<User>(userStorage.get());
 
   isAuthenticated = computed(() => Boolean(this._accessToken()));
   userName = computed(() => this._user()?.name ?? '');
@@ -19,11 +20,15 @@ export class AuthSessionService {
 
   clear() {
     tokenStorage.clear();
+    userStorage.clear();
     this._accessToken.set(null);
     this._user.set(null);
   }
 
   setUser(user: User) {
     this._user.set(user);
+
+    if (user) userStorage.set(user);
+    else userStorage.clear();
   }
 }
