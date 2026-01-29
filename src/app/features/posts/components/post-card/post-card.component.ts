@@ -2,6 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { formatAR } from '../../../../shared/utils/helpers/date-format';
+import { PostStatus } from '../../types/post.types';
 
 @Component({
   selector: 'app-post-card',
@@ -19,7 +20,7 @@ export class PostCardComponent {
   @Input() coverUrl?: string | null;
   @Input() tags: string[] = [];
 
-  @Input() status?: 'draft' | 'published';
+  @Input() status?: PostStatus;
   @Input() showStatus = false;
 
   formatAR = formatAR;

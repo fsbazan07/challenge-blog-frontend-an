@@ -23,6 +23,11 @@ export const routes: Routes = [
           import('./features/posts/pages/detail/post-detail.page').then((m) => m.PostDetailPage),
       },
       {
+        path: 'myposts',
+        loadComponent: () =>
+          import('./features/posts/pages/my-posts/my-posts.page').then((m) => m.MyPostsPage),
+      },
+      {
         path: 'profile',
         loadComponent: () =>
           import('./features/users/pages/profile.page').then((m) => m.ProfilePage),

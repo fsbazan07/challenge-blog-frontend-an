@@ -1,0 +1,77 @@
+<div class="px-4 py-8">
+  <div class="mx-auto w-full max-w-6xl flex flex-col gap-4">
+    <app-post-toolbar title="Mis posts" subtitle="Creá, editá y administrá tu contenido.">
+      <a rightSlot [routerLink]="['/myposts/new']">
+        <app-button variant="primary">Crear post</app-button>
+      </a>
+    </app-post-toolbar>
+
+    @if (isLoading) {
+      <div class="flex justify-center py-6">
+        <app-dots-loader />
+      </div>
+    }
+
+    @if (error) {
+      <div class="rounded-xl border border-border bg-muted p-4 text-sm">
+        {{ error.message }}
+      </div>
+    }
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      @for (p of items; track p.id) {
+        <div class="space-y-3">
+          <app-post-card
+            [id]="p.id"
+            [title]="p.title"
+            [excerpt]="p.excerpt ?? ''"
+            [authorName]="p.author?.name ?? '—'"
+            [createdAt]="p.created_at"
+            [coverUrl]="resolveCover(p.coverUrl) ?? ''"
+            [tags]="p.tags"
+            [status]="p.status"
+            [showStatus]="true"
+          />
+
+          <div class="flex gap-2 pt-2">
+            @if (p.status === 'draft') {
+              <a [routerLink]="['/myposts', p.id, 'edit']" class="w-full">
+                <app-button variant="secondary" class="w-full">Editar</app-button>
+              </a>
+            }
+
+            <app-button variant="secondary" class="w-full" (click)="openConfirm(p.id)">
+              Eliminar
+            </app-button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!isLoading && !error && items.length === 0) {
+      <div class="rounded-xl border border-border bg-muted p-6 text-sm text-muted-foreground">
+        Todavía no tenés posts. Creá el primero ✍️
+      </div>
+    }
+
+    @if (totalPages > 1) {
+      <app-pagination
+        [page]="page"
+        [totalPages]="totalPages"
+        (prev)="prevPage()"
+        (next)="nextPage()"
+        (goTo)="goToPage($event)"
+      />
+    }
+
+    <app-confirm-modal
+      [open]="confirmOpen"
+      message="¿Estás seguro que querés eliminar este post?"
+      confirmText="Sí, eliminar"
+      cancelText="Cancelar"
+      [isLoading]="isDeleting"
+      (cancelled)="closeConfirm()"
+      (confirmed)="deletePost()"
+    />
+  </div>
+</div>
