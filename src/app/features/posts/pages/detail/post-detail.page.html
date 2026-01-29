@@ -1,0 +1,19 @@
+<div class="px-4 py-8">
+  <div class="mx-auto w-full max-w-6xl space-y-6">
+    @if (isLoading) {
+      <div class="flex justify-center py-6">
+        <app-dots-loader />
+      </div>
+    }
+
+    @if (error) {
+      <div class="rounded-xl border border-border bg-muted p-4 text-sm">
+        {{ error.message }}
+      </div>
+    }
+
+    @if (!isLoading && !error && post) {
+      <app-post-detail-layout [post]="post" />
+    }
+  </div>
+</div>

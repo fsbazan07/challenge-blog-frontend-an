@@ -46,8 +46,6 @@ export class InputGuardDirective {
 
     const key = e.key;
 
-    if (key.length !== 1) return;
-
     const allowSpaces = this.config.allowSpaces ?? true;
     if (allowSpaces && key === ' ') return;
 
