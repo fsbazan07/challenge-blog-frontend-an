@@ -1,0 +1,237 @@
+<div class="px-4 py-8">
+  <div class="mx-auto w-full max-w-5xl space-y-6">
+    <header class="space-y-1">
+      <h1 class="text-2xl font-semibold text-foreground">Perfil</h1>
+      <p class="text-sm text-muted-foreground">Administrá tus datos y la seguridad de tu cuenta.</p>
+    </header>
+
+    @if (isLoading) {
+      <div class="rounded-xl border border-border bg-muted p-4 text-sm text-muted-foreground">
+        <app-dots-loader />
+      </div>
+    }
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- ================= DATOS ================= -->
+      <section class="w-full rounded-2xl bg-card shadow-xl dark:shadow-black/30">
+        <div class="p-6 sm:p-8 space-y-6">
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold text-foreground">Datos</h2>
+            <p class="text-sm text-muted-foreground">Actualizá tu información básica.</p>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="email" class="text-sm text-muted-foreground">Email</label>
+            <input
+              id="email"
+              [value]="user?.email ?? ''"
+              disabled
+              autocomplete="email"
+              class="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground outline-none"
+            />
+          </div>
+
+          <form [formGroup]="nameForm" (ngSubmit)="saveName()" class="space-y-6">
+            <div class="flex flex-col gap-2">
+              <label for="name" class="text-sm text-muted-foreground">Nombre</label>
+              <input
+                id="name"
+                formControlName="name"
+                placeholder="Tu nombre"
+                autocomplete="name"
+                class="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                [appInputGuard]="ngGuards.onlyLetters"
+                guardMode="sanitize"
+              />
+
+              @if (nameCtrl.touched && nameCtrl.errors?.['required']) {
+                <p class="text-sm text-destructive">El nombre es requerido.</p>
+              }
+              @if (nameCtrl.touched && nameCtrl.errors?.['maxlength']) {
+                <p class="text-sm text-destructive">Máximo 80 caracteres.</p>
+              }
+            </div>
+
+            <div class="flex justify-end">
+              <app-button variant="primary" type="submit" [disabled]="isSavingName">
+                {{ isSavingName ? 'Guardando...' : 'Guardar cambios' }}
+              </app-button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= SEGURIDAD ================= -->
+      <section class="w-full rounded-2xl bg-card shadow-xl dark:shadow-black/30">
+        <div class="p-6 sm:p-8 space-y-6">
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold text-foreground">Seguridad</h2>
+            <p class="text-sm text-muted-foreground">Cambiá tu contraseña cuando lo necesites.</p>
+          </div>
+
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-6">
+            <!-- Contraseña actual -->
+            <div class="flex flex-col gap-2">
+              <label for="currentPassword" class="text-sm text-muted-foreground">
+                Contraseña actual
+              </label>
+
+              <div class="relative">
+                <input
+                  id="currentPassword"
+                  [type]="showCurrentPassword ? 'text' : 'password'"
+                  formControlName="currentPassword"
+                  autocomplete="current-password"
+                  class="w-full rounded-xl border border-border bg-muted px-4 py-3 pr-12 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                  [appInputGuard]="ngGuards.password"
+                  guardMode="sanitize"
+                />
+
+                <button
+                  type="button"
+                  (click)="toggleShowCurrentPassword()"
+                  aria-label="Mostrar/Ocultar contraseña actual"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  @if (showCurrentPassword) {
+                    <ng-icon name="matVisibilityOff" size="20"></ng-icon>
+                  } @else {
+                    <ng-icon name="matVisibility" size="20"></ng-icon>
+                  }
+                </button>
+              </div>
+
+              @if (pw.currentPassword.touched && pw.currentPassword.errors?.['required']) {
+                <p class="text-sm text-destructive">Ingresá tu contraseña actual.</p>
+              }
+            </div>
+
+            <!-- Nueva contraseña -->
+            <div class="flex flex-col gap-2">
+              <label for="newPassword" class="text-sm text-muted-foreground">
+                Nueva contraseña
+              </label>
+
+              <div class="relative">
+                <input
+                  id="newPassword"
+                  [type]="showNewPassword ? 'text' : 'password'"
+                  formControlName="newPassword"
+                  autocomplete="new-password"
+                  class="w-full rounded-xl border border-border bg-muted px-4 py-3 pr-12 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                  [appInputGuard]="ngGuards.password"
+                  guardMode="sanitize"
+                />
+
+                <button
+                  type="button"
+                  (click)="toggleShowNewPassword()"
+                  aria-label="Mostrar/Ocultar nueva contraseña"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  @if (showNewPassword) {
+                    <ng-icon name="matVisibilityOff" size="20"></ng-icon>
+                  } @else {
+                    <ng-icon name="matVisibility" size="20"></ng-icon>
+                  }
+                </button>
+              </div>
+
+              @if (pw.newPassword.touched && pw.newPassword.errors?.['required']) {
+                <p class="text-sm text-destructive">Ingresá la nueva contraseña.</p>
+              }
+              @if (pw.newPassword.touched && pw.newPassword.errors?.['minlength']) {
+                <p class="text-sm text-destructive">Mínimo 6 caracteres.</p>
+              }
+            </div>
+
+            <!-- Confirmar -->
+            <div class="flex flex-col gap-2">
+              <label for="confirmNewPassword" class="text-sm text-muted-foreground">
+                Confirmar nueva contraseña
+              </label>
+
+              <div class="relative">
+                <input
+                  id="confirmNewPassword"
+                  [type]="showConfirmNewPassword ? 'text' : 'password'"
+                  formControlName="confirmNewPassword"
+                  autocomplete="new-password"
+                  class="w-full rounded-xl border border-border bg-muted px-4 py-3 pr-12 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                  [appInputGuard]="ngGuards.password"
+                  guardMode="sanitize"
+                />
+
+                <button
+                  type="button"
+                  (click)="toggleShowConfirmNewPassword()"
+                  aria-label="Mostrar/Ocultar confirmación de contraseña"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  @if (showConfirmNewPassword) {
+                    <ng-icon name="matVisibilityOff" size="20"></ng-icon>
+                  } @else {
+                    <ng-icon name="matVisibility" size="20"></ng-icon>
+                  }
+                </button>
+              </div>
+
+              @if (pw.confirmNewPassword.touched && pw.confirmNewPassword.errors?.['required']) {
+                <p class="text-sm text-destructive">Confirmá la nueva contraseña.</p>
+              }
+
+              @if (pw.confirmNewPassword.touched && passwordMismatch) {
+                <p class="text-sm text-destructive">La confirmación no coincide.</p>
+              }
+
+              @if (pw.newPassword.touched && pw.currentPassword.touched && passwordsSameAsCurrent) {
+                <p class="text-sm text-destructive">
+                  La nueva contraseña debe ser diferente a la actual.
+                </p>
+              }
+            </div>
+
+            <div class="flex justify-end">
+              <app-button variant="primary" type="submit" [disabled]="isChangingPassword">
+                @if (isChangingPassword) {
+                  <app-dots-loader />
+                } @else {
+                  Cambiar contraseña
+                }
+              </app-button>
+            </div>
+
+            <!-- Baja -->
+            <div class="pt-4 border-t border-border">
+              <div
+                class="rounded-xl border border-border bg-muted p-4 text-sm text-muted-foreground"
+              >
+                <div class="font-medium text-foreground">Dar de baja cuenta</div>
+                <p class="mt-1">
+                  Esto desactiva tu cuenta y cierra tu sesión. Para reactivarla deberás contactar al
+                  administrador.
+                </p>
+
+                <div class="mt-3 flex justify-end">
+                  <app-button variant="secondary" type="button" (click)="openConfirm()">
+                    Dar de baja
+                  </app-button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+
+    <app-confirm-modal
+      [open]="confirmOpen"
+      message="¿Seguro que querés dar de baja tu cuenta? Vas a perder el acceso hasta que un administrador la reactive."
+      confirmText="Sí, dar de baja"
+      cancelText="Cancelar"
+      [isLoading]="isDeactivating"
+      (cancelled)="closeConfirm()"
+      (confirmed)="deactivateMe()"
+    />
+  </div>
+</div>

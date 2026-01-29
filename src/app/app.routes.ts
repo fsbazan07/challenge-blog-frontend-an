@@ -17,6 +17,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/posts/pages/feed/feed.page').then((m) => m.FeedPage),
       },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/users/pages/profile.page').then((m) => m.ProfilePage),
+      },
     ],
   },
   {

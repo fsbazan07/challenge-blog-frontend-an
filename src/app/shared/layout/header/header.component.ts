@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ThemeToggleComponent } from '../../ui/theme-toggle/theme-toggle.component';
 import { NgIconComponent } from '@ng-icons/core';
@@ -23,8 +23,8 @@ export class HeaderComponent {
   isMobileMenuOpen = false;
 
   // --- Stub auth (después lo conectamos a AuthSessionService) ---
-  isAuthenticated = this.session.isAuthenticated();
-  userName = this.session.userName();
+  isAuthenticated = computed(() => this.session.isAuthenticated());
+  userName = computed(() => this.session.userName());
 
   navItems: NavItem[] = [
     { to: '/feed', label: 'Feed' },
@@ -43,8 +43,6 @@ export class HeaderComponent {
   onLogoutClick() {
     this.session.clear();
     this.auth.clearSession();
-    this.isAuthenticated = false;
-    this.userName = '';
 
     this.toast.success('Sesión cerrada');
     this.closeMobileMenu();

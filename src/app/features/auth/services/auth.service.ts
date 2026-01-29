@@ -11,7 +11,7 @@ export type LoginResponse = { accessToken?: string; refreshToken?: string };
 export type MeResponse = { user: { id: string; name: string; email: string } };
 
 export type RegisterRequest = { name: string; email: string; password: string };
-export type RegisterResponse = { accessToken?: string; refreshToken?: string };
+export type RegisterResponse = { accessToken?: string; refreshToken?: string } & MeResponse;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -25,14 +25,14 @@ export class AuthService {
           this.session.setTokens(res.accessToken, res.refreshToken);
         }
       }),
-      catchError((e) => throwError(() => normalizeHttpError(e) as ApiError)),
+      catchError((e) => throwError(() => e)),
     );
   }
 
   me() {
     return this.http.get<MeResponse>(`${environment.apiUrl}/auth/me`).pipe(
       tap((res) => this.session.setUser(res.user)),
-      catchError((e) => throwError(() => normalizeHttpError(e) as ApiError)),
+      catchError((e) => throwError(() => e)),
     );
   }
 
@@ -45,6 +45,18 @@ export class AuthService {
     this.session.clear();
   }
 
+  logout() {
+    return this.http.post<{ ok: true }>(`${environment.apiUrl}/auth/logout`, {}).pipe(
+      tap(() => {
+        this.clearSession();
+      }),
+      catchError((e) => {
+        this.clearSession();
+        return throwError(() => normalizeHttpError(e.message) as ApiError);
+      }),
+    );
+  }
+
   isAuthenticated() {
     return this.session.isAuthenticated();
   }
@@ -54,9 +66,10 @@ export class AuthService {
       tap((res) => {
         if (res.accessToken) {
           this.session.setTokens(res.accessToken, res.refreshToken);
+          this.session.setUser(res.user);
         }
       }),
-      catchError((e) => throwError(() => normalizeHttpError(e))),
+      catchError((e) => throwError(() => normalizeHttpError(e.message))),
     );
   }
 }

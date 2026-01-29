@@ -7,9 +7,9 @@ function asMessage(msg: unknown): string {
   return 'Ocurrió un error';
 }
 
-export function normalizeHttpError(err: unknown): ApiError {
+export function normalizeHttpError(err: ApiError | HttpErrorResponse): ApiError {
   if (!(err instanceof HttpErrorResponse)) {
-    return { status: 0, message: 'Error inesperado', details: err };
+    return err;
   }
 
   const status = err.status ?? 0;
