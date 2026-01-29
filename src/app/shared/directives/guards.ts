@@ -5,6 +5,9 @@ import {
   sanitizeOnlyLetters,
   sanitizeOnlyNumbers,
   sanitizePassword,
+  sanitizePostContent,
+  sanitizePostExcerpt,
+  sanitizePostTitle,
 } from '../utils/validation/sanitize';
 
 export const ngGuards = {
@@ -36,5 +39,17 @@ export const ngGuards = {
   password: {
     sanitize: sanitizePassword,
     allowSpaces: false,
+  },
+  postTitle: {
+    sanitize: sanitizePostTitle,
+    allowSpaces: true,
+  },
+  postExcerpt: {
+    sanitize: sanitizePostExcerpt,
+    allowSpaces: true,
+  },
+  postContent: {
+    sanitize: sanitizePostContent,
+    allowSpaces: true,
   },
 } as const;
