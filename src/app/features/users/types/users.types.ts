@@ -11,7 +11,7 @@ export type UserMe = {
   name: string;
   email: string;
   isActive: boolean;
-  role: UserRole | string; // por si backend devuelve role.code o role completo
+  role: UserRole | string;
 };
 
 export type MeResponse = {
