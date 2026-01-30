@@ -1,0 +1,48 @@
+<aside class="w-full rounded-2xl bg-card shadow-xl dark:shadow-black/30">
+  <div class="p-6 sm:p-8 space-y-4">
+    <div class="space-y-1">
+      <h2 class="text-lg font-semibold text-foreground">Preview</h2>
+      <p class="text-sm text-muted-foreground">Así se vería en el feed / detalle.</p>
+    </div>
+
+    @if (vm.coverPreviewUrl) {
+      <img
+        [src]="vm.coverPreviewUrl"
+        alt="Cover preview"
+        class="h-44 w-full rounded-xl object-cover border border-border"
+        loading="lazy"
+        decoding="async"
+      />
+    } @else {
+      <div
+        class="h-44 w-full rounded-xl bg-muted border border-border flex items-center justify-center text-sm text-muted-foreground"
+      >
+        Sin portada
+      </div>
+    }
+
+    <div class="space-y-2">
+      <h3 class="text-xl font-semibold text-foreground">
+        {{ vm.title.trim() || 'Título del post' }}
+      </h3>
+
+      <p class="text-sm text-muted-foreground">
+        {{ vm.excerpt.trim() || 'Resumen del post (opcional)' }}
+      </p>
+
+      <div class="pt-2 text-sm text-foreground/90 whitespace-pre-wrap">
+        {{ contentPreview }}
+      </div>
+
+      @if (vm.tags.length > 0) {
+        <div class="flex flex-wrap gap-2 pt-3">
+          @for (t of vm.tags; track t) {
+            <span class="rounded-full bg-accent px-3 py-1 text-xs text-accent-foreground">
+              #{{ t }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</aside>

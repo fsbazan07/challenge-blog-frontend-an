@@ -1,0 +1,14 @@
+<button
+  type="button"
+  aria-label="Cambiar tema"
+  (click)="toggle()"
+  class="relative inline-flex h-9 w-16 items-center rounded-full border border-border bg-muted transition-colors hover:bg-accent"
+>
+  <span
+    class="absolute left-1 flex h-7 w-7 items-center justify-center rounded-full bg-background shadow-sm transition-transform"
+    [class.translate-x-7]="isDark"
+    [class.translate-x-0]="!isDark"
+  >
+    <ng-icon [name]="isDark ? 'matDarkMode' : 'matLightMode'" class="h-4 w-4 text-foreground" />
+  </span>
+</button>

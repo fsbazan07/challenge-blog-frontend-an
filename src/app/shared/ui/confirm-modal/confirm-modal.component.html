@@ -1,0 +1,45 @@
+<!-- src/app/shared/ui/confirm-modal/confirm-modal.component.html -->
+@if (open) {
+  <div class="fixed inset-0 z-50">
+    <!-- overlay -->
+    <button
+      type="button"
+      aria-label="Cerrar"
+      (click)="onCancelClick()"
+      class="absolute inset-0 bg-black/50"
+    ></button>
+
+    <div class="relative mx-auto flex h-full max-w-lg items-center px-4">
+      <div class="w-full rounded-2xl border border-border bg-card p-6 shadow-xl">
+        <div class="space-y-2">
+          <h3 class="text-lg font-semibold text-foreground">{{ title }}</h3>
+          <p class="text-sm text-muted-foreground">{{ message }}</p>
+        </div>
+
+        <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <app-button
+            variant="secondary"
+            type="button"
+            (click)="onCancelClick()"
+            [disabled]="isLoading"
+          >
+            {{ cancelText }}
+          </app-button>
+
+          <app-button
+            variant="primary"
+            type="button"
+            (click)="onConfirmClick()"
+            [disabled]="isLoading"
+          >
+            @if (isLoading) {
+              <app-dots-loader />
+            } @else {
+              {{ confirmText }}
+            }
+          </app-button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

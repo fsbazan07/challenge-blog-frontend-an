@@ -1,0 +1,36 @@
+<div class="relative h-screen">
+  <!-- Header flotante arriba -->
+  <header class="absolute left-0 top-0 z-20 w-full">
+    <div class="flex items-center justify-between px-6 py-4">
+      <a routerLink="/" class="md:flex items-center gap-2">
+        <img src="/MyBlog.png" alt="MyBlog" class="h-14 drop-shadow-md hidden md:block" />
+      </a>
+
+      <app-theme-toggle />
+    </div>
+  </header>
+
+  <!-- Grid principal -->
+  <div class="grid h-full md:grid-cols-2">
+    <!-- Columna izquierda: imagen -->
+    <div class="relative hidden md:block">
+      <img src="/LoginImage.jpg" alt="Login visual" class="h-full w-full object-cover" />
+      <!-- overlay suave -->
+      <div class="absolute inset-0 bg-black/5 dark:bg-black/20"></div>
+    </div>
+
+    <!-- Columna derecha: contenido -->
+    <div class="flex h-full flex-col bg-transparent">
+      <!-- spacer para que el header no tape el contenido -->
+      <div class="h-16"></div>
+
+      <main class="flex flex-1 items-center justify-center px-6">
+        <div class="w-full max-w-md">
+          <router-outlet />
+        </div>
+      </main>
+
+      <app-footer />
+    </div>
+  </div>
+</div>
