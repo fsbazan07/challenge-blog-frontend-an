@@ -1,59 +1,245 @@
-# ChallengeBlogFrontendAn
+# Challenge Blog – Frontend Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.1.
+Frontend del proyecto **Challenge Blog**, desarrollado con **Angular** y pensado para integrarse con un backend existente (NestJS) compartido con otra implementación en React.
 
-## Development server
+El foco de este proyecto está en:
 
-To start a local development server, run:
+- Arquitectura clara
+- Buen manejo de estado y errores
+- Tests automatizados
+- Dockerización simple y realista
+- Separación frontend / backend
 
-```bash
-ng serve
+---
+
+## 🧱 Stack tecnológico
+
+- Angular (standalone APIs)
+- TypeScript
+- RxJS
+- Angular Signals
+- TailwindCSS
+- Vitest (testing)
+- Nginx (producción / docker)
+- Docker & Docker Compose
+
+---
+
+## 📦 Requisitos
+
+- Node.js >= 20
+- pnpm
+- Docker + Docker Compose
+- Backend Challenge Blog corriendo (en local o docker)
+
+> El backend se encuentra en un repositorio separado: https://github.com/fsbazan07/challenge-blog-backend
+
+---
+
+## 👤 Primer uso (crear usuario)
+
+Este proyecto **no incluye seed ni usuario demo**.  
+La primera vez que lo ejecutes, necesitás crear una cuenta desde la UI.
+
+1. Levantá el backend (ver README del backend) y el frontend.
+2. Abrí la app:
+   - Local: `http://localhost:4200`
+   - Docker: `http://localhost:8080`
+3. Entrá a **Register**.
+4. Completá `name`, `email` y `password` y enviá el formulario.
+5. Luego iniciá sesión desde **Login** con las mismas credenciales.
+
+✅ Al registrarte o loguearte, la sesión queda guardada automáticamente (tokens + usuario en storage).
+
+> El usuario creado tiene permisos estándar para crear, editar y eliminar sus propios posts.
+
+## 📁 Estructura del proyecto
+
+```
+src/
+ ├─ app/
+ │   ├─ features/
+ │   │   ├─ auth/
+ │   │   ├─ posts/
+ │   │   └─ users/
+ │   ├─ shared/
+ │   │   ├─ http/
+ │   │   ├─ directives/
+ │   │   └─ utils/
+ │   └─ app.component.ts
+ ├─ assets/
+ ├─ environments/
+ │   └─ environment.ts
+ ├─ index.html
+ └─ main.ts
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Features
 
-## Code scaffolding
+- **auth**: login, register, manejo de sesión
+- **posts**: feed, crear post, mis posts
+- **users**: perfil, cambio de contraseña, desactivación de cuenta
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+### Shared
+
+- `http`: client HTTP y normalización de errores
+- `directives`: input guards (keydown, paste, drop, beforeinput)
+- `utils`: validadores, sanitizadores y expresiones regulares
+
+---
+
+## 🔐 Manejo de sesión y errores
+
+- La sesión se maneja mediante `AuthSessionService`
+- Tokens y usuario se persisten en storage
+- Todas las respuestas de error se normalizan a un formato común (`ApiError`)
+- El frontend está preparado para mostrar **toasts tanto en éxito como en error**
+
+---
+
+## 🧪 Testing
+
+El proyecto cuenta con **tests unitarios** para:
+
+### Servicios
+
+- `AuthService`
+- `AuthSessionService`
+- `PostsService`
+- `UsersService`
+
+### Shared
+
+- Validators
+- Sanitizers
+- Guards (`ngGuards`)
+- Directiva `InputGuardDirective`
+
+### Ejecutar tests
 
 ```bash
-ng generate component component-name
+pnpm test
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Salida esperada:
+
+```txt
+Tests passed ✓
+```
+
+---
+
+## 🌍 Environments
+
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api',
+  assetsUrl: 'http://localhost:8080',
+};
+```
+
+> En entorno dockerizado, el frontend **no se comunica directamente con el backend**, sino a través de **nginx como reverse proxy**.
+
+---
+
+## 🐳 Dockerización
+
+### ¿Por qué Docker?
+
+- Evita problemas de CORS
+- Simula un entorno productivo real
+- Permite compartir el backend con otros frontends (React / Angular)
+
+### Servicios
+
+- **frontend**: Angular build servido por nginx
+- **backend**: vive en un repositorio separado y se comparte entre proyectos
+
+---
+
+## 🌐 nginx
+
+Responsabilidades principales:
+
+- Servir la SPA correctamente (`try_files /index.html`)
+- Proxy de `/api` hacia el backend
+- Proxy de assets
+- Aumento de `client_max_body_size` para soportar uploads (`FormData`)
+
+---
+
+## 🧩 docker-compose
+
+Levantado del frontend:
 
 ```bash
-ng generate --help
+docker compose up --build
 ```
 
-## Building
+### Puertos
 
-To build the project run:
+- Frontend: [http://localhost:8080](http://localhost:8080)
+- Backend: [http://localhost:3000](http://localhost:3000) (levantado desde otro repositorio)
+
+---
+
+## 🔁 Relación con el backend
+
+- El backend **NO vive en este repositorio**
+- Se comparte con:
+  - Frontend Angular
+  - Frontend React
+
+- El frontend consume siempre `/api` vía nginx
+
+---
+
+## 🚀 Flujo de desarrollo
+
+Modo desarrollo:
 
 ```bash
-ng build
+pnpm install
+pnpm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Modo docker / demo:
 
 ```bash
-ng test
+docker compose up --build
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## 🧠 Decisiones técnicas destacadas
 
-```bash
-ng e2e
-```
+- Uso de Standalone APIs de Angular
+- Separación clara por feature
+- Guards y sanitización centralizada
+- Tests como parte del flujo normal
+- Infraestructura simple pero realista (nginx + reverse proxy)
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
+## ℹ️ Alcance
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Este proyecto no incluye:
+
+- Seed de usuarios
+- Roles administrativos desde la UI
+- Manejo de permisos avanzados en frontend
+
+## ✨ Estado del proyecto
+
+- ✅ Funcional
+- ✅ Testeado
+- ✅ Dockerizado
+- ✅ Documentado
+
+---
+
+## 👩‍💻 Autora
+
+**Florencia Samanta Bazan**
+Frontend / Fullstack Developer
