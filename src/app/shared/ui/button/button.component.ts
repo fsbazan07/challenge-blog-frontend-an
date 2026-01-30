@@ -25,12 +25,9 @@ export class ButtonComponent {
     'disabled:opacity-50 disabled:pointer-events-none ring-offset-background';
 
   private variants: Record<Variant, string> = {
-    primary:
-      'bg-primary text-primary-foreground hover:opacity-90 active:opacity-95',
-    secondary:
-      'bg-secondary text-secondary-foreground hover:bg-muted active:bg-muted',
-    outline:
-      'border border-border bg-transparent text-foreground hover:bg-muted',
+    primary: 'bg-primary text-primary-foreground hover:opacity-90 active:opacity-95',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-muted active:bg-muted',
+    outline: 'border border-border bg-transparent text-foreground hover:bg-muted',
     ghost: 'bg-transparent text-foreground hover:bg-muted',
   };
 
