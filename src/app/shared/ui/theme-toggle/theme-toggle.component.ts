@@ -10,9 +10,7 @@ function getInitialTheme(): Theme {
   const saved = localStorage.getItem(KEY);
   if (saved === 'light' || saved === 'dark') return saved;
 
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 function applyTheme(theme: Theme) {
@@ -44,4 +42,3 @@ export class ThemeToggleComponent implements OnInit {
     applyTheme(this.theme);
   }
 }
-
